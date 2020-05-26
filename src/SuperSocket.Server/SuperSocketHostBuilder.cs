@@ -89,14 +89,15 @@ namespace SuperSocket
         {
 
             ServerOptions serverOptions = simpleSocketConfig.ToServerOptions();
-          
+
             return this.ConfigureServices((hostCtx, services) =>
             {
                 services.AddOptions();
                 IocUnity.AddSingleton(serverOptions);
-                IOptions<ServerOptions> options= new  ServerConfigOptions<ServerOptions>(serverOptions);
+                IOptions<ServerOptions> options = new ServerConfigOptions<ServerOptions>(serverOptions);
                 IocUnity.AddSingleton<IOptions<ServerOptions>>(options);
-            });
+            }) as SuperSocketHostBuilder<TReceivePackage>;
+
         }
 
         public IHostBuilder ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
