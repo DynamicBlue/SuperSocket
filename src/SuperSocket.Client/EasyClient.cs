@@ -5,8 +5,8 @@ using System.Net;
 using System.Net.Sockets;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
-using Microsoft.Extensions.Logging;
 using System.Threading;
+using Dynamic.Core.Log;
 
 namespace SuperSocket.Client
 {
@@ -197,7 +197,7 @@ namespace SuperSocket.Client
 
         protected virtual void OnError(string message, Exception exception)
         {
-            Logger?.LogError(exception, message);
+            Logger?.Error(exception.ToString()+message);
         }
 
         ValueTask IEasyClient<TReceivePackage>.SendAsync(ReadOnlyMemory<byte> data)

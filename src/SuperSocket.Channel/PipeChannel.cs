@@ -6,9 +6,8 @@ using System.IO.Pipelines;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
 using SuperSocket.ProtoBase;
-
+using Dynamic.Core.Log;
 
 [assembly: InternalsVisibleTo("Test")] 
 namespace SuperSocket.Channel
@@ -450,9 +449,9 @@ namespace SuperSocket.Channel
         protected void OnError(string message, Exception e = null)
         {
             if (e != null)
-                Logger?.LogError(e, message);
+                Logger?.Error(e.ToString()+message);
             else
-                Logger?.LogError(message);
+                Logger?.Error(message);
         }
     }
 }

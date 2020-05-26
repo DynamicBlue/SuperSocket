@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
+using Dynamic.Core.Log;
 
 namespace SuperSocket.Server
 {
@@ -20,7 +21,7 @@ namespace SuperSocket.Server
             _socketOptionsSetter = serviceProvider.GetService<Action<Socket>>();
         }
 
-        protected virtual void ApplySocketOptions(Socket socket, ListenOptions listenOptions, ChannelOptions channelOptions, ILogger logger)
+        protected virtual void ApplySocketOptions(Socket socket, ListenOptions listenOptions, ChannelOptions channelOptions, Dynamic.Core.Log.ILogger logger)
         {
             try
             {
@@ -29,7 +30,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Failed to set NoDelay for the socket.");
+                logger.Warn("Failed to set NoDelay for the socket."+e.ToString());
             }
 
             try
@@ -39,7 +40,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Failed to set ReceiveBufferSize for the socket.");
+                logger.Warn(e.ToString()+"Failed to set ReceiveBufferSize for the socket.");
             }
 
             try
@@ -49,7 +50,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Failed to set SendBufferSize for the socket.");
+                logger.Warn(e.ToString()+"Failed to set SendBufferSize for the socket.");
             }
 
             try
@@ -59,7 +60,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Failed to set ReceiveTimeout for the socket.");
+                logger.Warn(e.ToString()+"Failed to set ReceiveTimeout for the socket.");
             }
 
             try
@@ -69,7 +70,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Failed to set SendTimeout for the socket.");
+                logger.Warn(e.ToString()+ "Failed to set SendTimeout for the socket.");
             }
 
             try
@@ -78,16 +79,16 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                logger.LogWarning(e, "Failed to run socketOptionSetter for the socket.");
+                logger.Warn(e.ToString()+ "Failed to run socketOptionSetter for the socket.");
             }
         }
 
         public IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options, ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
         {
             var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
-            channelOptions.Logger = loggerFactory.CreateLogger(nameof(IChannel));
+            //  channelOptions.Logger = LoggerManager.InitLogger(new LogConfig()); //loggerFactory.CreateLogger(nameof(IChannel));
 
-            var channelFactoryLogger = loggerFactory.CreateLogger(nameof(TcpChannelCreator));
+            var channelFactoryLogger = LoggerManager.GetLogger(nameof(TcpChannelCreator)); 
 
             if (options.Security == SslProtocols.None)
             {

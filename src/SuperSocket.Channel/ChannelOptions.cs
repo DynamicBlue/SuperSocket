@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+//using Microsoft.Extensions.Logging;
 using System.IO.Pipelines;
 using SuperSocket.ProtoBase;
+using Dynamic.Core.Log;
 
 namespace SuperSocket.Channel
 {

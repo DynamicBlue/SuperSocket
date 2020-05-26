@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
 using SuperSocket.Channel;
-using Microsoft.Extensions.Logging;
 using System.Security.Authentication;
+using Dynamic.Core.Log;
 
 namespace SuperSocket.Server
 {
@@ -80,7 +80,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"The listener[{this.ToString()}] failed to start.");
+                _logger.Error(e.ToString()+$"The listener[{this.ToString()}] failed to start.");
                 return false;
             }
         }
@@ -110,7 +110,7 @@ namespace SuperSocket.Server
                         }
                     }
                     
-                    _logger.LogError(e, $"Listener[{this.ToString()}] failed to do AcceptAsync");
+                    _logger.Error(e.ToString()+$"Listener[{this.ToString()}] failed to do AcceptAsync");
                     continue;
                 }
             }
@@ -135,7 +135,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Failed to create channel for {socket.RemoteEndPoint}.");
+                _logger.Error(e.ToString()+$"Failed to create channel for {socket.RemoteEndPoint}.");
                 return;
             }            
 
