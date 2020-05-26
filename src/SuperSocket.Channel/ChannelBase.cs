@@ -9,6 +9,7 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.Channel
 {
     public abstract class ChannelBase<TPackageInfo> : IChannel<TPackageInfo>, IChannel
+        where TPackageInfo : class
     {
         public abstract IAsyncEnumerable<TPackageInfo> RunAsync();
 

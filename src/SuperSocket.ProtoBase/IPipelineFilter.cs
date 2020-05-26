@@ -10,6 +10,7 @@ namespace SuperSocket.ProtoBase
     }
 
     public interface IPipelineFilter<TPackageInfo> : IPipelineFilter
+        where TPackageInfo : class
     {
         
         IPackageDecoder<TPackageInfo> Decoder { get; set; }

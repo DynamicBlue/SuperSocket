@@ -13,6 +13,7 @@ using Dynamic.Core.Log;
 namespace SuperSocket.Channel
 {
     public abstract partial class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel, IPipeChannel
+        where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
 
@@ -372,7 +373,7 @@ namespace SuperSocket.Channel
 
         private void WriteEOFPackage()
         {
-            _packagePipe.Write(default);
+            _packagePipe.Write(null);
         }
 
         private bool ReaderBuffer(ref ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)

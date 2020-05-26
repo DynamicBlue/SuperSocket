@@ -84,6 +84,7 @@ namespace SuperSocket.Server
         }
 
         public IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options, ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
+            where TPackageInfo : class
         {
             var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
             //  channelOptions.Logger = LoggerManager.InitLogger(new LogConfig()); //loggerFactory.CreateLogger(nameof(IChannel));

@@ -45,7 +45,7 @@ namespace Tests
         protected override IServer CreateServer(IHostConfigurator hostConfigurator)
         {
             return CreateSocketServerBuilder<TextPackageInfo, MyMarkHeaderPipelineFilter>(hostConfigurator)
-                .UsePackageHandler(async (s, p) =>
+                .ConfigurePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer() as IServer;

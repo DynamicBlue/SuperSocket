@@ -9,6 +9,7 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.Channel
 {
     public class TcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
+        where TPackageInfo : class
     {
 
         private Socket _socket;

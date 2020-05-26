@@ -58,7 +58,7 @@ namespace Tests.WebSocket
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                builder.UseSessionHandler((s) =>
+                builder.ConfigureSessionHandler((s) =>
                 {
                     serverSessionPath = (s as WebSocketSession).Path;
                     connected = true;
@@ -112,7 +112,7 @@ namespace Tests.WebSocket
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                return builder.UseWebSocketMessageHandler(async (session, message) =>
+                return builder.ConfigureWebSocketMessageHandler(async (session, message) =>
                 {
                     await session.SendAsync(message.Message);
                 });
@@ -162,10 +162,10 @@ namespace Tests.WebSocket
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                builder.UseWebSocketMessageHandler(async (s,  p) =>
+                builder.ConfigureWebSocketMessageHandler(async (s,  p) =>
                 {
                     await (s as WebSocketSession).SendAsync(p.Message);
-                }).UseSessionHandler((s) =>
+                }).ConfigureSessionHandler((s) =>
                 {
                     serverSessionPath = (s as WebSocketSession).Path;
                     return new ValueTask();
@@ -262,7 +262,7 @@ namespace Tests.WebSocket
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                return builder.UseWebSocketMessageHandler(async (session, message) =>
+                return builder.ConfigureWebSocketMessageHandler(async (session, message) =>
                 {
                     await session.SendAsync(message.Message);
                 });
@@ -320,7 +320,7 @@ namespace Tests.WebSocket
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                return builder.UseWebSocketMessageHandler(async (session, message) =>
+                return builder.ConfigureWebSocketMessageHandler(async (session, message) =>
                 {
                     await session.SendAsync(new WebSocketMessage
                     {
@@ -381,7 +381,7 @@ namespace Tests.WebSocket
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                return builder.UseWebSocketMessageHandler(async (session, message) =>
+                return builder.ConfigureWebSocketMessageHandler(async (session, message) =>
                 {
                     await session.SendAsync(_encoding.GetString(message.Data.ToArray()));
                 });
@@ -437,10 +437,10 @@ namespace Tests.WebSocket
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                return builder.UseWebSocketMessageHandler(async (session, message) =>
+                return builder.ConfigureWebSocketMessageHandler(async (session, message) =>
                 {
                     await session.SendAsync(message.Message);
-                }).UseSessionHandler(async (s) =>
+                }).ConfigureSessionHandler(async (s) =>
                 {
                     await (s as WebSocketSession).SendAsync(s.SessionID);
                 }).ConfigureSuperSocket((options) =>

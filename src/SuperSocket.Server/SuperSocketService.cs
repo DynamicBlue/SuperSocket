@@ -16,6 +16,7 @@ using SuperSocket.Server.Runtime;
 namespace SuperSocket.Server
 {
     public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister, ILoggerAccessor
+        where TReceivePackageInfo : class
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -310,14 +311,12 @@ namespace SuperSocket.Server
                 await FireSessionConnectedEvent(session);
 
                 var packageChannel = channel as IChannel<TReceivePackageInfo>;
-                var packageHandler = _packageHandler;
 
                 await foreach (var p in packageChannel.RunAsync())
                 {
                     try
                     {
-                        if (packageHandler != null)
-                            await packageHandler.Handle(session, p);
+                        await _packageHandler?.Handle(session, p);
                     }
                     catch (Exception e)
                     {

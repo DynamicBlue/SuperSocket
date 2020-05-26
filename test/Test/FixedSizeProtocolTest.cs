@@ -40,7 +40,7 @@ namespace Tests
         protected override IServer CreateServer(IHostConfigurator hostConfigurator)
         {
             var server = CreateSocketServerBuilder<TextPackageInfo, MyFixedSizePipelineFilter>(hostConfigurator)
-                .UsePackageHandler(async (s, p) =>
+                .ConfigurePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer() as IServer;
