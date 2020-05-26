@@ -1,8 +1,8 @@
 using System;
 using System.Linq;
 using System.Threading;
+using Dynamic.Core.Log;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace SuperSocket.Server
@@ -17,7 +17,7 @@ namespace SuperSocket.Server
 
         private ILogger _logger;
 
-        public ClearIdleSessionMiddleware(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory)
+        public ClearIdleSessionMiddleware(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions)
         {
             _sessionContainer = serviceProvider.GetService<ISessionContainer>();
             
@@ -25,7 +25,7 @@ namespace SuperSocket.Server
                 throw new Exception($"{nameof(ClearIdleSessionMiddleware)} needs a middleware of {nameof(ISessionContainer)}");
 
             _serverOptions = serverOptions.Value;
-            _logger = loggerFactory.CreateLogger<ClearIdleSessionMiddleware>();
+            _logger = LoggerManager.GetLogger("ClearIdleSessionMiddleware");
         }
 
         public override void Start(IServer server)
@@ -48,18 +48,18 @@ namespace SuperSocket.Server
                         try
                         {
                             s.Channel.CloseAsync();
-                            _logger.LogWarning($"Close the idle session {s.SessionID}, it's LastActiveTime is {s.LastActiveTime}.");
+                            _logger.Warn($"Close the idle session {s.SessionID}, it's LastActiveTime is {s.LastActiveTime}.");
                         }
                         catch (Exception exc)
                         {
-                            _logger.LogError(exc, $"Error happened when close the session {s.SessionID} for inactive for a while.");
+                            _logger.Error(exc.ToString()+ $"Error happened when close the session {s.SessionID} for inactive for a while.");
                         }                        
                     }
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error happened when clear idle session.");
+                _logger.Error(e.ToString()+"Error happened when clear idle session.");
             }
 
             _timer.Change(_serverOptions.ClearIdleSessionInterval * 1000, _serverOptions.ClearIdleSessionInterval * 1000);

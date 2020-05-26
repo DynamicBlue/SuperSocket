@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Dynamic.Core.Service;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Options;
 using SuperSocket;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
+using SuperSocket.Server.Runtime;
 
 namespace SuperSocket.Server
 {
@@ -70,12 +72,14 @@ namespace SuperSocket.Server
 
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
         {
-            _serverOptions = serverOptions;
+            var serverOptionsValue =  IocUnity.Get<ServerOptions>();
+            _serverOptions = new ServerConfigOptions<ServerOptions>(serverOptionsValue);
+            //_serverOptions = serverOptions;
             Name = serverOptions.Value.Name;
             _serviceProvider = serviceProvider;
             _pipelineFilterFactory = GetPipelineFilterFactory();
             _loggerFactory = loggerFactory;
-            _logger = _loggerFactory.CreateLogger("SuperSocketService");
+            _logger = _loggerFactory.CreateLogger("CSuperSocketService");
             _channelCreatorFactory = channelCreatorFactory;
             _packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>();
             _errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>();

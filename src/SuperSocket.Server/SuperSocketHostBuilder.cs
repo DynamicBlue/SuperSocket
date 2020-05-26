@@ -3,13 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamic.Core.Service;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using SuperSocket;
 using SuperSocket.ProtoBase;
+using SuperSocket.ProtoBase.Config;
 using SuperSocket.Server;
+using SuperSocket.Server.Extions;
+using SuperSocket.Server.Runtime;
 
 namespace SuperSocket
 {
@@ -79,6 +84,19 @@ namespace SuperSocket
                     services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
                 });
         }
+        public SuperSocketHostBuilder<TReceivePackage> ConfigureSimpleConfig(SimpleSocketConfig simpleSocketConfig)
+        {
+
+            ServerOptions serverOptions = simpleSocketConfig.ToServerOptions();
+          
+            return this.ConfigureServices((hostCtx, services) =>
+            {
+                services.AddOptions();
+                IocUnity.AddSingleton(serverOptions);
+                IOptions<ServerOptions> options= new  ServerConfigOptions<ServerOptions>(serverOptions);
+                IocUnity.AddSingleton<IOptions<ServerOptions>>(options);
+            });
+        }
 
         public IHostBuilder ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
         {
@@ -96,6 +114,8 @@ namespace SuperSocket
             _hostBuilder.ConfigureServices(configureDelegate);
             return this;
         }
+
+
 
         public IHostBuilder UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory)
         {
@@ -181,13 +201,27 @@ namespace SuperSocket
             return new SuperSocketHostBuilder<TReceivePackage>()
                 .ConfigureDefaults();
         }
-        
+        public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage>(SimpleSocketConfig simpleSocketConfig)
+         where TReceivePackage : class
+        {
+            return new SuperSocketHostBuilder<TReceivePackage>()
+                .ConfigureSimpleConfig(simpleSocketConfig);
+        }
+
         public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>()
             where TReceivePackage : class
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
             return new SuperSocketHostBuilder<TReceivePackage>()
                 .ConfigureDefaults()
+                .UsePipelineFilter<TPipelineFilter>();
+        }
+        public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>(SimpleSocketConfig simpleSocketConfig)
+         where TReceivePackage : class
+         where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
+        {
+            return new SuperSocketHostBuilder<TReceivePackage>()
+                .ConfigureSimpleConfig(simpleSocketConfig)
                 .UsePipelineFilter<TPipelineFilter>();
         }
     }
