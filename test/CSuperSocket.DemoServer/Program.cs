@@ -1,4 +1,6 @@
-﻿using Dynamic.Core.Extensions;
+﻿using CSuperSocket.DemoServer.Filter;
+using Dynamic.Core.Auxiliary;
+using Dynamic.Core.Extensions;
 using Dynamic.Core.Log;
 using Microsoft.Extensions.Hosting;
 using NLog;
@@ -27,12 +29,24 @@ namespace CSuperSocket.DemoServer
             {
                 Port = 6868
             };
-
-            var host = SuperSocketHostBuilder.Create<BinaryRequestInfo, ReceiveFilter<BinaryRequestInfo>>(simpleSocketConfig)
+            long i = 0;
+            var host = SuperSocketHostBuilder.Create<BinaryRequestInfo, BinaryByteFilter>(simpleSocketConfig)
                 .UseHostedService<CSuperSocketService<BinaryRequestInfo>>()
                 .UsePackageHandler(async (session, requestInfo) =>
                 {
-                    Console.WriteLine(requestInfo.Body.ToArray().ToHex());
+                    i++;
+
+                 //   await Task.Factory.StartNew(()=> {
+                        var colorf = i % 2 == 0 ? ConsoleColor.Red : ConsoleColor.Green;
+                        IOHelper.WriteLine(requestInfo.Body.ToArray().ToHex(),colorf);
+
+                        if (i % 100 == 0)
+                        { 
+                        Console.Clear();
+                        }
+                    await session.SendAsync(requestInfo.Body.ToArray());
+                   // });
+                    
                 })
                 .Build();
 
