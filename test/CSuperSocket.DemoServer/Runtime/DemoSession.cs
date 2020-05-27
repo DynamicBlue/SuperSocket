@@ -15,7 +15,7 @@ namespace CSuperSocket.DemoServer.Runtime
         {
             // do something right after the sesssion is connected
         }
-
+     
         protected override async ValueTask OnSessionClosedAsync(EventArgs e)
         {
             // do something right after the sesssion is closed

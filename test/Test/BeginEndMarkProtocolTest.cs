@@ -45,7 +45,7 @@ namespace Tests
         protected override IServer CreateServer(IHostConfigurator hostConfigurator)
         {
             return CreateSocketServerBuilder<TextPackageInfo, MyMarkHeaderPipelineFilter>(hostConfigurator)
-                .ConfigurePackageHandler(async (s, p) =>
+                .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer() as IServer;
@@ -89,7 +89,7 @@ namespace Tests
         {
             var pool = ArrayPool<byte>.Shared;
             var buffer = pool.Rent(lines.Sum(x => 3 + Utf8Encoding.GetMaxByteCount(x.Length)));
-            
+
             Span<byte> span = buffer;
 
             var total = 0;
@@ -129,7 +129,7 @@ namespace Tests
 
             rest[0] = 0x1C;
             rest[1] = 0x0D;
-            
+
             return span.Slice(0, len + 3);
         }
 
@@ -238,7 +238,7 @@ namespace Tests
                         {
                             var line = Guid.NewGuid().ToString();
 
-                            lines[i] = line;                            
+                            lines[i] = line;
                             WritePackage(socketStream, line);
                         }
 
@@ -255,7 +255,7 @@ namespace Tests
                 await server.StopAsync();
             }
         }
-        
+
         public override async Task TestBreakRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);

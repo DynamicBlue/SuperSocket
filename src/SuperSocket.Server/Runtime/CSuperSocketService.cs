@@ -1,5 +1,4 @@
 ﻿using Dynamic.Core.Service;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket.ProtoBase.Config;
 using System;
@@ -16,10 +15,9 @@ namespace SuperSocket.Server.Runtime
             var serverOptions = new ServerConfigOptions<ServerOptions>(serverOptionsValue);
             return serverOptions;
         }
-        public CSuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory) : base(serviceProvider, GetServerCfgOptions(), loggerFactory, channelCreatorFactory)
+        public CSuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, IChannelCreatorFactory channelCreatorFactory) : base(serviceProvider, GetServerCfgOptions(),  channelCreatorFactory)
         {
           
         }
-        
     }
 }

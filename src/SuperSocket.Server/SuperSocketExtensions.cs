@@ -11,12 +11,14 @@ using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 using System.Net;
 using System.Net.Sockets;
-using Microsoft.Extensions.Logging;
+
+using Dynamic.Core.Log;
 
 namespace SuperSocket
 {
     public static class SuperSocketExtensions
     {
+        static ILogger _Logger = LoggerManager.GetLogger("SuperSocketExtensions");
         public static async ValueTask<bool> ActiveConnect(this IServer server, EndPoint remoteEndpoint)
         {
             var socket = new Socket(remoteEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -29,18 +31,14 @@ namespace SuperSocket
             }
             catch (Exception e)
             {
-                var loggerFactory = server.ServiceProvider.GetService<ILoggerFactory>();
-
-                if (loggerFactory != null)
-                    loggerFactory.CreateLogger(nameof(ActiveConnect)).LogError(e, $"Failed to connect to {remoteEndpoint}");
-
+                _Logger.Error($"Failed to connect to {remoteEndpoint}¡¾{e.ToString()}¡¿");
                 return false;
             }
         }
 
         public static ILogger GetDefaultLogger(this IAppSession session)
         {
-            return (session.Server as ILoggerAccessor)?.Logger;
+            return _Logger;
         }
     }
 }

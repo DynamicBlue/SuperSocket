@@ -4,7 +4,6 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
@@ -83,8 +82,7 @@ namespace SuperSocket.Server
             }
         }
 
-        public IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options, ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
-            where TPackageInfo : class
+        public IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options, ChannelOptions channelOptions, object pipelineFilterFactory)
         {
             var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
             //  channelOptions.Logger = LoggerManager.InitLogger(new LogConfig()); //loggerFactory.CreateLogger(nameof(IChannel));

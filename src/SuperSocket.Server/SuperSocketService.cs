@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using CacheManager.Core.Logging;
+using Dynamic.Core.Log;
 using Dynamic.Core.Service;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket;
 using SuperSocket.Channel;
@@ -15,29 +16,21 @@ using SuperSocket.Server.Runtime;
 
 namespace SuperSocket.Server
 {
-    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister, ILoggerAccessor
-        where TReceivePackageInfo : class
+    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister
     {
         private readonly IServiceProvider _serviceProvider;
-
+        public Dynamic.Core.Log.ILogger _logger = LoggerManager.GetLogger("CSuperSocketService");
         public IServiceProvider ServiceProvider
         {
             get { return _serviceProvider; }
         }
 
         private readonly IOptions<ServerOptions> _serverOptions;
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly ILogger _logger;
+ 
 
-        internal protected ILogger Logger
-        {
-            get { return _logger; }
-        }
+       
 
-        ILogger ILoggerAccessor.Logger
-        {
-            get { return _logger; }
-        }
+       
 
         private IPipelineFilterFactory<TReceivePackageInfo> _pipelineFilterFactory;
         private IChannelCreatorFactory _channelCreatorFactory;
@@ -71,7 +64,7 @@ namespace SuperSocket.Server
 
         private SessionHandlers _sessionHandlers;
 
-        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
+        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, IChannelCreatorFactory channelCreatorFactory)
         {
             var serverOptionsValue =  IocUnity.Get<ServerOptions>();
             _serverOptions = new ServerConfigOptions<ServerOptions>(serverOptionsValue);
@@ -79,8 +72,7 @@ namespace SuperSocket.Server
             Name = serverOptions.Value.Name;
             _serviceProvider = serviceProvider;
             _pipelineFilterFactory = GetPipelineFilterFactory();
-            _loggerFactory = loggerFactory;
-            _logger = _loggerFactory.CreateLogger("CSuperSocketService");
+         
             _channelCreatorFactory = channelCreatorFactory;
             _packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>();
             _errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>();
@@ -126,7 +118,7 @@ namespace SuperSocket.Server
                 }
                 catch(Exception e)
                 {
-                    _logger.LogError(e, $"The exception was thrown from the middleware {m.GetType().Name} when it is being shutdown.");
+                    _logger.Error($"The exception was thrown from the middleware {m.GetType().Name} when it is being shutdown.¡¾{e.ToString()}¡¿");
                 }                
             }
         }
@@ -138,16 +130,16 @@ namespace SuperSocket.Server
 
         private bool AddChannelCreator(ListenOptions listenOptions, ServerOptions serverOptions)
         {
-            var listener = _channelCreatorFactory.CreateChannelCreator<TReceivePackageInfo>(listenOptions, serverOptions, _loggerFactory, _pipelineFilterFactory);
+            var listener = _channelCreatorFactory.CreateChannelCreator<TReceivePackageInfo>(listenOptions, serverOptions, _pipelineFilterFactory);
             listener.NewClientAccepted += OnNewClientAccept;
 
             if (!listener.Start())
             {
-                _logger.LogError($"Failed to listen {listener}.");
+                _logger.Error($"Failed to listen {listener}.");
                 return false;
             }
 
-            _logger.LogInformation($"The listener [{listener}] has been started.");
+            _logger.Info($"The listener [{listener}] has been started.");
             _channelCreators.Add(listener);
             return true;
         }
@@ -167,18 +159,18 @@ namespace SuperSocket.Server
 
                     if (!AddChannelCreator(l, serverOptions))
                     {
-                        _logger.LogError($"Failed to listen {l}.");
+                        _logger.Error($"Failed to listen {l}.");
                         continue;
                     }
                 }
             }
             else
             {
-                _logger.LogWarning("No listner was defined, so this server only can accept connections from the ActiveConnect.");
+                _logger.Warn("No listner was defined, so this server only can accept connections from the ActiveConnect.");
 
                 if (!AddChannelCreator(null, serverOptions))
                 {
-                    _logger.LogError($"Failed to add the channel creator.");
+                    _logger.Error($"Failed to add the channel creator.");
                     return Task.FromResult(false);
                 }
             }
@@ -227,7 +219,7 @@ namespace SuperSocket.Server
 
                     if (!await middleware.RegisterSession(session))
                     {
-                        _logger.LogWarning($"A session from {session.RemoteEndPoint} was rejected by the middleware {middleware.GetType().Name}.");
+                        _logger.Warn($"A session from {session.RemoteEndPoint} was rejected by the middleware {middleware.GetType().Name}.");
                         return false;
                     }
                 }
@@ -265,7 +257,7 @@ namespace SuperSocket.Server
                     return;
             }
 
-            _logger.LogInformation($"A new session connected: {session.SessionID}");
+            _logger.Info($"A new session connected: {session.SessionID}");
 
             try
             {
@@ -275,7 +267,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "There is one exception thrown from the event handler of SessionConnected.");
+                _logger.Error($"There is one exception thrown from the event handler of SessionConnected.¡¾{e.ToString()}¡¿");
             }
         }
 
@@ -287,7 +279,7 @@ namespace SuperSocket.Server
                     return;
             }
 
-            _logger.LogInformation($"The session disconnected: {session.SessionID}");
+            _logger.Info($"The session disconnected: {session.SessionID}");
 
             try
             {
@@ -297,7 +289,7 @@ namespace SuperSocket.Server
             }
             catch (Exception exc)
             {
-                _logger.LogError(exc, "There is one exception thrown from the event of OnSessionClosed.");
+                _logger.Error($"There is one exception thrown from the event of OnSessionClosed.¡¾{exc.ToString()}¡¿");
             }
         }
 
@@ -311,12 +303,14 @@ namespace SuperSocket.Server
                 await FireSessionConnectedEvent(session);
 
                 var packageChannel = channel as IChannel<TReceivePackageInfo>;
+                var packageHandler = _packageHandler;
 
                 await foreach (var p in packageChannel.RunAsync())
                 {
                     try
                     {
-                        await _packageHandler?.Handle(session, p);
+                        if (packageHandler != null)
+                            await packageHandler.Handle(session, p);
                     }
                     catch (Exception e)
                     {
@@ -326,12 +320,12 @@ namespace SuperSocket.Server
                         {
                             session.CloseAsync().DoNotAwait();
                         }
-                    }                    
+                    }
                 }
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Failed to handle the session {session.SessionID}.");
+                _logger.Error($"Failed to handle the session {session.SessionID}.¡¾{e.ToString()}¡¿");
             }
             finally
             {
@@ -341,7 +335,7 @@ namespace SuperSocket.Server
 
         protected virtual ValueTask<bool> OnSessionErrorAsync(IAppSession session, PackageHandlingException<TReceivePackageInfo> exception)
         {
-            _logger.LogError(exception, $"Session[{session.SessionID}]: session exception.");
+            _logger.Error($"Session[{session.SessionID}]: session exception.¡¾{exception.ToString()}¡¿");
             return new ValueTask<bool>(true);
         }
 
@@ -366,7 +360,7 @@ namespace SuperSocket.Server
             }
             catch(Exception e)
             {
-                _logger.LogError(e, "There is one exception thrown from the method OnStartedAsync().");
+                _logger.Error($"There is one exception thrown from the method OnStartedAsync().¡¾{e.ToString()}¡¿");
             }
         }
 
@@ -383,7 +377,7 @@ namespace SuperSocket.Server
         private async Task StopListener(IChannelCreator listener)
         {
             await listener.StopAsync();
-            _logger.LogInformation($"The listener [{listener}] has been stopped.");
+            _logger.Info($"The listener [{listener}] has been stopped.");
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -408,7 +402,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "There is an exception thrown from the method OnStopAsync().");
+                _logger.Error($"There is an exception thrown from the method OnStopAsync().¡¾{e.ToString()}¡¿");
             }
 
             _state = ServerState.Stopped;
@@ -445,7 +439,7 @@ namespace SuperSocket.Server
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError(e, "Failed to stop the server");
+                        _logger.Error($"Failed to stop the server¡¾{e.ToString()}¡¿");
                     }
                 }
 

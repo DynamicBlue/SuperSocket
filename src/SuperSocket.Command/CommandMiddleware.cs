@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.ProtoBase;
-using Microsoft.Extensions.Logging;
+using Dynamic.Core.Log;
 
 namespace SuperSocket.Command
 {
@@ -47,7 +47,7 @@ namespace SuperSocket.Command
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
         {
-            _logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger("CommandMiddleware");
+            _logger = LoggerManager.GetLogger("CommandMiddleware");
 
             var sessionFactory = serviceProvider.GetService<ISessionFactory>();
             var sessionType = sessionFactory == null ? typeof(IAppSession) : sessionFactory.SessionType;
@@ -106,12 +106,12 @@ namespace SuperSocket.Command
                 if (commandDict.ContainsKey(cmd.Key))
                 {
                     var error = $"Duplicated command with Key {cmd.Key} is found: {cmd.ToString()}";
-                    _logger.LogError(error);
+                    _logger.Error(error);
                     throw new Exception(error);
                 }
 
                 commandDict.Add(cmd.Key, cmd);
-                _logger.LogDebug("The command with key {cmd.Key} is registered: {cmd.ToString()}");
+                _logger.Debug("The command with key {cmd.Key} is registered: {cmd.ToString()}");
             }
 
             _commands = commandDict;
@@ -192,6 +192,8 @@ namespace SuperSocket.Command
             await HandlePackage(session, package);
         }
 
+       
+
         ValueTask IPackageHandler<TNetPackageInfo>.Handle(IAppSession session, TNetPackageInfo package)
         {
             return HandlePackage(session, PackageMapper.Map(package));
@@ -252,7 +254,7 @@ namespace SuperSocket.Command
 
         class CommandSetFactory<TAppSession> : ICommandSetFactory
             where TAppSession : IAppSession
-        
+
         {
             public CommandTypeInfo CommandType { get; private set; }
 

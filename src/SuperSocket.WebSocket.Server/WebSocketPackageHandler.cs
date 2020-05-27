@@ -4,8 +4,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Dynamic.Core.Log;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket;
 using SuperSocket.ProtoBase;
@@ -18,7 +18,7 @@ namespace SuperSocket.WebSocket.Server
         private const string _magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
         private static Encoding _textEncoding = new UTF8Encoding(false);
-        
+
         private IServiceProvider _serviceProvider;
 
         private IPackageHandler<WebSocketPackage> _websocketCommandMiddleware;
@@ -27,11 +27,11 @@ namespace SuperSocket.WebSocket.Server
 
         private ISubProtocolSelector _subProtocolSelector;
 
-        private ILogger _logger;
+        private ILogger _logger = LoggerManager.GetLogger("WebSocketPackageHandler");
 
         private readonly HandshakeOptions _handshakeOptions;
 
-        public WebSocketPackageHandler(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IOptions<HandshakeOptions> handshakeOptions)
+        public WebSocketPackageHandler(IServiceProvider serviceProvider, IOptions<HandshakeOptions> handshakeOptions)
         {
             _serviceProvider = serviceProvider;
 
@@ -40,7 +40,6 @@ namespace SuperSocket.WebSocket.Server
 
             _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, Task>>();
             _subProtocolSelector = serviceProvider.GetService<ISubProtocolSelector>();
-            _logger = loggerFactory.CreateLogger<WebSocketPackageHandler>();
             _handshakeOptions = handshakeOptions.Value;
         }
 
@@ -71,10 +70,10 @@ namespace SuperSocket.WebSocket.Server
             return closeStatus;
         }
 
-        public async Task Handle(IAppSession session, WebSocketPackage package)
+        public async ValueTask Handle(IAppSession session, WebSocketPackage package)
         {
             var websocketSession = session as WebSocketSession;
-            
+
             if (package.OpCode == OpCode.Handshake)
             {
                 websocketSession.HttpHeader = package.HttpHeader;
@@ -143,14 +142,14 @@ namespace SuperSocket.WebSocket.Server
                     }
                     catch (InvalidOperationException)
                     {
-                         // support the case the client close the connection right after it send the close handshake
+                        // support the case the client close the connection right after it send the close handshake
                     }
                 }
                 else
                 {
                     websocketSession.CloseWithoutHandshake();
                 }
-                
+
                 return;
             }
             else if (package.OpCode == OpCode.Ping)
@@ -174,7 +173,7 @@ namespace SuperSocket.WebSocket.Server
             }
 
             var packageHandleDelegate = _packageHandlerDelegate;
-            
+
             if (packageHandleDelegate != null)
                 await packageHandleDelegate(websocketSession, package);
         }
