@@ -16,6 +16,10 @@ namespace SuperSocket.ProtoBase.Filter
                 var nextFilter = filterManager.Get(ref reader);
                 this.NextFilter = nextFilter;
             }
+            return new BinaryRequestInfo()
+            {
+                Body = reader.Sequence
+            } as TPackageInfo;
             return null;
         }
     }

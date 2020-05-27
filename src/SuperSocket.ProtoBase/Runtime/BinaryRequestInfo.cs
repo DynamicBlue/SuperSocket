@@ -4,7 +4,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SuperSocket.Server.Runtime
+namespace SuperSocket.ProtoBase
 {
     public class BinaryRequestInfo: IKeyedPackageInfo<string>
     {

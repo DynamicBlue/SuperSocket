@@ -1,4 +1,5 @@
-﻿using Dynamic.Core.Log;
+﻿using Dynamic.Core.Extensions;
+using Dynamic.Core.Log;
 using Microsoft.Extensions.Hosting;
 using NLog;
 using SuperSocket;
@@ -7,6 +8,7 @@ using SuperSocket.ProtoBase.Config;
 using SuperSocket.ProtoBase.Filter;
 using SuperSocket.Server.Runtime;
 using System;
+using System.Buffers;
 using System.Threading.Tasks;
 
 namespace CSuperSocket.DemoServer
@@ -16,17 +18,22 @@ namespace CSuperSocket.DemoServer
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
-             Init().GetAwaiter().GetResult();
+            Init().GetAwaiter().GetResult();
         }
         static async Task Init()
         {
             LoggerManager.InitLogger(new LogConfig());
-            SimpleSocketConfig simpleSocketConfig = new SimpleSocketConfig() { 
-               Port=6868
+            SimpleSocketConfig simpleSocketConfig = new SimpleSocketConfig()
+            {
+                Port = 6868
             };
 
             var host = SuperSocketHostBuilder.Create<BinaryRequestInfo, ReceiveFilter<BinaryRequestInfo>>(simpleSocketConfig)
                 .UseHostedService<CSuperSocketService<BinaryRequestInfo>>()
+                .UsePackageHandler(async (session, requestInfo) =>
+                {
+                    Console.WriteLine(requestInfo.Body.ToArray().ToHex());
+                })
                 .Build();
 
             await host.RunAsync();
