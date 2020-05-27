@@ -30,7 +30,7 @@ namespace CSuperSocket.DemoServer
                 Port = 6868
             };
             long i = 0;
-            var host = SuperSocketHostBuilder.Create<BinaryRequestInfo, BinaryByteFilter>(simpleSocketConfig)
+            var host = SuperSocketHostBuilder.Create<BinaryRequestInfo, BeginEndWraperByteFilter>(simpleSocketConfig)
                 .UseHostedService<CSuperSocketService<BinaryRequestInfo>>()
                 .UsePackageHandler(async (session, requestInfo) =>
                 {
@@ -38,8 +38,7 @@ namespace CSuperSocket.DemoServer
 
                  //   await Task.Factory.StartNew(()=> {
                         var colorf = i % 2 == 0 ? ConsoleColor.Red : ConsoleColor.Green;
-                        IOHelper.WriteLine(requestInfo.Body.ToArray().ToHex(),colorf);
-
+                        IOHelper.WriteLine(requestInfo.OriBuffer.ToHex(),colorf);
                         if (i % 100 == 0)
                         { 
                         Console.Clear();

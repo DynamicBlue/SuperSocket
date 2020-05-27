@@ -9,7 +9,7 @@ namespace SuperSocket.ProtoBase
     public class BinaryRequestInfo: IKeyedPackageInfo<string>
     {
         public ReadOnlySequence<byte> Body { get; set; }
-
+        public byte[] OriBuffer { get; set; }
         public string Key { get; set; }
     }
 }
