@@ -10,17 +10,21 @@ namespace SuperSocket.ProtoBase.Filter
 {
     public class DefaultBeginEndWraperByteFilter : BeginEndMarkPipelineFilter<BinaryRequestInfo>
     {
-        private readonly static  byte[] BeginMark = new byte[] { 0x7e };
-        private readonly static byte[] EndMark = new byte[] { 0x7e };
+        private readonly static  byte[] _BeginMark = new byte[] { 0x7e };
+        private readonly static byte[] _EndMark = new byte[] { 0x7e };
 
         public virtual bool IsContainterOriBuffer => true;
-        public DefaultBeginEndWraperByteFilter() : this(BeginMark, EndMark)
+
+        public byte[] BeginMark { get; set; }
+        public byte[] EndMark { get; set; }
+        public DefaultBeginEndWraperByteFilter() : this(_BeginMark, _EndMark)
         {
 
         }
         public DefaultBeginEndWraperByteFilter(ReadOnlyMemory<byte> beginMark, ReadOnlyMemory<byte> endMark):base(beginMark,endMark)
         {
-
+            this.BeginMark = beginMark.ToArray();
+            this.EndMark = endMark.ToArray();
         }
         public override BinaryRequestInfo Filter(ref SequenceReader<byte> reader)
         {

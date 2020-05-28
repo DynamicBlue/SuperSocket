@@ -19,22 +19,6 @@ namespace CSuperSocket.DemoServer.Filter
         {
 
         }
-        protected override BinaryRequestInfo ProcessMatchedRequest(ref ReadOnlySequence<byte> buffer)
-        {
-            var requestInfo = new BinaryRequestInfo() { Key = BeginMark.ToHex(), Body = buffer };
-            if (IsContainterOriBuffer)
-            {
-                requestInfo.OriBuffer = new byte[buffer.Length + BeginMark.Length + EndMark.Length];
-                long index = 0;
-                Array.Copy(BeginMark, 0, requestInfo.OriBuffer, 0, BeginMark.Length);
-                index += BeginMark.Length;
-                Array.Copy(buffer.ToArray(), 0, requestInfo.OriBuffer, index, buffer.Length);
-                index += buffer.Length;
-                Array.Copy(EndMark, 0, requestInfo.OriBuffer, index, EndMark.Length);
-
-            }
-            return requestInfo;
-        }
       
     }
 }
