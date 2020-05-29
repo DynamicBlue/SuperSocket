@@ -17,7 +17,7 @@ namespace CSuperSocket.DemoServer.Filter
         public override bool IsContainterOriBuffer => true;
         public BeginEndWraperByteFilter() : base(BeginMark, EndMark)
         {
-
+            //this.NextFilter = new DefaultFixedHeaderPipelineFilter();
         }
       
     }

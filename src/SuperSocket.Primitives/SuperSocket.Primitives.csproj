@@ -3,8 +3,12 @@
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>SuperSocket.Primitives</AssemblyName>
-    <PackageId>SuperSocket.Primitives</PackageId>
+    <PackageId>CDSuperSocket.Primitives</PackageId>
     <Description>SuperSocket primitive interfaces and classes.</Description>
+    <Version>1.0.0.5</Version>
+    <Authors>CDSuperSocket.Primitives</Authors>
+    <Product>CDSuperSocket.Primitives</Product>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MSExtensionsVersion)" />

@@ -30,7 +30,7 @@ namespace CSuperSocket.DemoServer
                 Port = 6868
             };
             long i = 0;
-            var host = SuperSocketHostBuilder.Create<BinaryRequestInfo, BeginEndWraperByteFilter>(simpleSocketConfig)
+            var host = SuperSocketHostBuilder.Create<BinaryRequestInfo, DefaultFixedHeaderPipelineFilter>(simpleSocketConfig)
                 .UseHostedService<CSuperSocketService<BinaryRequestInfo>>()
                 .UsePackageHandler(async (session, requestInfo) =>
                 {
