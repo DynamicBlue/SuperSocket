@@ -7,7 +7,7 @@
     <Description>CDSuperSocket server hosting library.</Description>
     <Company />
     <Authors>CDSuperSocket.All</Authors>
-    <Version>1.0.0.4</Version>
+    <Version>1.0.0.7</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Product>CDSuperSocket.All</Product>
     <PackageProjectUrl>https://github.com/dynamic/supersocket</PackageProjectUrl>

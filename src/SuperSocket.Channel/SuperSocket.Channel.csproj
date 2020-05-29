@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <Description>SuperSocket library to abstract underlying communications as channel with pipeline.</Description>
-    <Version>1.0.0.5</Version>
+    <Version>1.0.0.7</Version>
     <PackageProjectUrl>https://github.com/dynamic/supersocket</PackageProjectUrl>
     <Company>dynamic;dynamicblue;Kerry Jiang</Company>
     <Authors>dynamic;dynamicblue;Kerry Jiang</Authors>
