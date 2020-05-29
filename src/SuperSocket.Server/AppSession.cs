@@ -134,12 +134,12 @@ namespace SuperSocket.Server
             await connectedEventHandler.Invoke(this, EventArgs.Empty);
         }
 
-        ValueTask IAppSession.SendAsync(ReadOnlyMemory<byte> data)
+        public ValueTask SendAsync(ReadOnlyMemory<byte> data)
         {
             return _channel.SendAsync(data);
         }
 
-        ValueTask IAppSession.SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        public ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
             return _channel.SendAsync(packageEncoder, package);
         }
