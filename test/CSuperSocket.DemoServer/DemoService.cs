@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CSuperSocket.DemoServer
 {
-    public class DemoService<TReceivePackageInfo> : SuperSocketService<TReceivePackageInfo> where TReceivePackageInfo : class
+    public class DemoService<TSessionData,TReceivePackageInfo> : SuperSocketService<TSessionData,TReceivePackageInfo> where TReceivePackageInfo : class
     {
         public DemoService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, IChannelCreatorFactory channelCreatorFactory) : base(serviceProvider, serverOptions, channelCreatorFactory)
         {

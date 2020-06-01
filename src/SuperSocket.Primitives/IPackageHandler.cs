@@ -4,9 +4,9 @@ using SuperSocket.Channel;
 
 namespace SuperSocket
 {
-    public interface IPackageHandler<TReceivePackageInfo>
+    public interface IPackageHandler<TSessionData, TReceivePackageInfo>
         //where TReceivePackageInfo : class
     {
-        ValueTask Handle(IAppSession session, TReceivePackageInfo package);
+        ValueTask Handle(IAppSession<TSessionData> session, TReceivePackageInfo package);
     }
 }

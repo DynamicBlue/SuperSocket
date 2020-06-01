@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CSuperSocket.DemoServer.Runtime
 {
-    public class DemoSession : AppSession
+    public class DemoSession<TSessionData> : AppSession<TSessionData>
     {
         public int GameHallId { get; internal set; }
 

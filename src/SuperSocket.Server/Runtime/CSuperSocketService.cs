@@ -7,7 +7,7 @@ using System.Text;
 
 namespace SuperSocket.Server.Runtime
 {
-    public class CSuperSocketService<TReceivePackageInfo> : SuperSocketService<TReceivePackageInfo> where TReceivePackageInfo : class
+    public class CSuperSocketService<TSessionData,TReceivePackageInfo> : SuperSocketService<TSessionData,TReceivePackageInfo> where TReceivePackageInfo : class
     {
         protected static IOptions<ServerOptions> GetServerCfgOptions()
         {

@@ -3,9 +3,9 @@ using SuperSocket.Channel;
 
 namespace SuperSocket
 {
-    public interface ISessionFactory
+    public interface ISessionFactory<TSessionData>
     {
-        IAppSession Create();
+        IAppSession<TSessionData> Create();
 
         Type SessionType { get; }
     }

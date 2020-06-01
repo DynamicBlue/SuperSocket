@@ -11,12 +11,17 @@ using SuperSocket.ProtoBase.Filter;
 using SuperSocket.Server.Runtime;
 using System;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace CSuperSocket.DemoServer
 {
+    public class TestSessionData {
+        public string Name { get; set; }
+    }
     class Program
     {
+
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
@@ -30,12 +35,16 @@ namespace CSuperSocket.DemoServer
                 Port = 6868
             };
             long i = 0;
-            var host = SuperSocketHostBuilder.Create<BinaryRequestInfo, DefaultFixedHeaderPipelineFilter>(simpleSocketConfig)
-                .UseHostedService<CSuperSocketService<BinaryRequestInfo>>()
+            var host = SuperSocketHostBuilder<TestSessionData>.Create<BinaryRequestInfo, DefaultFixedHeaderPipelineFilter>(simpleSocketConfig)
+                .UseHostedService<CSuperSocketService<TestSessionData,BinaryRequestInfo>>()
                 .UsePackageHandler(async (session, requestInfo) =>
                 {
                     i++;
-
+                    if (session.DataContext == null)
+                    {
+                        session.DataContext = new TestSessionData() { Name = i.ToString() };
+                    }
+                    
                  //   await Task.Factory.StartNew(()=> {
                         var colorf = i % 2 == 0 ? ConsoleColor.Red : ConsoleColor.Green;
                         IOHelper.WriteLine(requestInfo.OriBuffer.ToHex(),colorf);

@@ -11,6 +11,6 @@ namespace SuperSocket
 
         void Shutdown(IServer server);
 
-        ValueTask<bool> RegisterSession(IAppSession session);
+        ValueTask<bool> RegisterSession<TSessionData>(IAppSession<TSessionData> session);
     }
 }

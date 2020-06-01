@@ -5,16 +5,16 @@ using SuperSocket.Channel;
 
 namespace SuperSocket
 {
-    public class AsyncToSyncSessionContainerWraper : ISessionContainer
+    public class AsyncToSyncSessionContainerWraper<TSessionData> : ISessionContainer<TSessionData>
     {
-        IAsyncSessionContainer _asyncSessionContainer;
+        IAsyncSessionContainer<TSessionData> _asyncSessionContainer;
 
-        public AsyncToSyncSessionContainerWraper(IAsyncSessionContainer asyncSessionContainer)
+        public AsyncToSyncSessionContainerWraper(IAsyncSessionContainer<TSessionData> asyncSessionContainer)
         {
             _asyncSessionContainer = asyncSessionContainer;
         }
 
-        public IAppSession GetSessionByID(string sessionID)
+        public IAppSession<TSessionData> GetSessionByID(string sessionID)
         {
             return _asyncSessionContainer.GetSessionByIDAsync(sessionID).Result;
         }
@@ -24,12 +24,12 @@ namespace SuperSocket
             return _asyncSessionContainer.GetSessionCountAsync().Result;
         }
 
-        public IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> critera)
+        public IEnumerable<IAppSession<TSessionData>> GetSessions(Predicate<IAppSession<TSessionData>> critera)
         {
             return _asyncSessionContainer.GetSessionsAsync(critera).Result;
         }
 
-        public IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera) where TAppSession : IAppSession
+        public IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera) where TAppSession : IAppSession<TSessionData>
         {
             return _asyncSessionContainer.GetSessionsAsync<TAppSession>(critera).Result;
         }

@@ -1,16 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
-    public class AppSession : IAppSession
+    public class AppSession<T> : IAppSession<T>
     {
         private IChannel _channel;
 
+      
         protected internal IChannel Channel
         {
             get { return _channel; }
@@ -21,7 +23,7 @@ namespace SuperSocket.Server
             SessionID = Guid.NewGuid().ToString();
         }
 
-        void IAppSession.Initialize(IServerInfo server, IChannel channel)
+        public void Initialize(IServerInfo server, IChannel channel)
         {
             Server = server;
             StartTime = DateTimeOffset.Now;
@@ -36,12 +38,12 @@ namespace SuperSocket.Server
 
         public IServerInfo Server { get; private set; }
 
-        IChannel IAppSession.Channel
+        IChannel IAppSession<T>.Channel
         {
             get { return _channel; }
         }
 
-        public object DataContext { get; set; }
+        public T DataContext { get; set; }
 
         public EndPoint RemoteEndPoint
         {
@@ -57,6 +59,8 @@ namespace SuperSocket.Server
         {
             get { return _channel?.LastActiveTime ?? DateTimeOffset.MinValue; }
         }
+
+        public T SessionData { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
         public event AsyncEventHandler Connected;
 

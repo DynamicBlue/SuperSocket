@@ -4,17 +4,17 @@ using SuperSocket.Channel;
 
 namespace SuperSocket
 {
-    public class DelegatePackageHandler<TReceivePackageInfo> : IPackageHandler<TReceivePackageInfo>
+    public class DelegatePackageHandler<TSessionData,TReceivePackageInfo> : IPackageHandler<TSessionData,TReceivePackageInfo>
     {
 
-        Func<IAppSession, TReceivePackageInfo, ValueTask> _func;
+        Func<IAppSession<TSessionData>, TReceivePackageInfo, ValueTask> _func;
 
-        public DelegatePackageHandler(Func<IAppSession, TReceivePackageInfo, ValueTask> func)
+        public DelegatePackageHandler(Func<IAppSession<TSessionData>, TReceivePackageInfo, ValueTask> func)
         {
             _func = func;
         }
 
-        public async ValueTask Handle(IAppSession session, TReceivePackageInfo package)
+        public async ValueTask Handle(IAppSession<TSessionData> session, TReceivePackageInfo package)
         {
             await _func(session, package);
         }

@@ -9,7 +9,7 @@ using System.Text;
 
 namespace SuperSocket.Server.Runtime
 {
-    public class CSuperSocketHostBuilder<TReceivePackage> :SuperSocketHostBuilder<TReceivePackage> where TReceivePackage : class
+    public class CSuperSocketHostBuilder<TSessionData,TReceivePackage> :SuperSocketHostBuilder<TSessionData,TReceivePackage> where TReceivePackage : class
     {
         public override IHost Build()
         {
@@ -26,7 +26,7 @@ namespace SuperSocket.Server.Runtime
 
                 // if no host service was defined, just use the default one
                 if (!services.Any(sd => sd.ServiceType == typeof(IHostedService)
-                    && typeof(SuperSocketService<TReceivePackage>).IsAssignableFrom(sd.ImplementationType)))
+                    && typeof(SuperSocketService<TSessionData,TReceivePackage>).IsAssignableFrom(sd.ImplementationType)))
                 {
                     RegisterDefaultHostedService(services);
                 }

@@ -7,7 +7,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket
 {
-    public interface IAppSession
+    public interface IAppSession<TSessionData>
     {
         string SessionID { get; }
 
@@ -31,7 +31,7 @@ namespace SuperSocket
 
         event AsyncEventHandler Closed;
 
-        object DataContext { get; set; }
+        TSessionData DataContext { get; set; }
 
         void Initialize(IServerInfo server, IChannel channel);
 

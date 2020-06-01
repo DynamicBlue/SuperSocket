@@ -17,7 +17,7 @@ namespace SuperSocket
             
         }
         
-        public virtual ValueTask<bool> RegisterSession(IAppSession session)
+        public virtual ValueTask<bool> RegisterSession<TSessionData>(IAppSession<TSessionData> session)
         {
             return new ValueTask<bool>(true);
         }

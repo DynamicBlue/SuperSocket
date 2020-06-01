@@ -36,7 +36,7 @@ namespace SuperSocket
             }
         }
 
-        public static ILogger GetDefaultLogger(this IAppSession session)
+        public static ILogger GetDefaultLogger<TSessionData>(this IAppSession<TSessionData> session)
         {
             return _Logger;
         }

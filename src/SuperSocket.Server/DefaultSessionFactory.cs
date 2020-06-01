@@ -4,13 +4,13 @@ using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {
-    class DefaultSessionFactory : ISessionFactory
+    class DefaultSessionFactory<TSessionData> : ISessionFactory<TSessionData>
     {
-        public Type SessionType => typeof(AppSession);
+        public Type SessionType => typeof(AppSession<TSessionData>);
 
-        public IAppSession Create()
+        public IAppSession<TSessionData> Create()
         {
-            return new AppSession();
+            return new AppSession<TSessionData>();
         }
     }
 }

@@ -8,56 +8,56 @@ namespace SuperSocket
 {
     public static class SessionContainerExtensions
     {
-        public static ISessionContainer ToSyncSessionContainer(this IAsyncSessionContainer asyncSessionContainer)
+        public static ISessionContainer<TSessionData> ToSyncSessionContainer<TSessionData>(this IAsyncSessionContainer<TSessionData> asyncSessionContainer)
         {
-            return new AsyncToSyncSessionContainerWraper(asyncSessionContainer);
+            return new AsyncToSyncSessionContainerWraper<TSessionData>(asyncSessionContainer);
         }
 
-        public static IAsyncSessionContainer ToAsyncSessionContainer(this ISessionContainer syncSessionContainer)
+        public static IAsyncSessionContainer<TSessionData> ToAsyncSessionContainer<TSessionData>(this ISessionContainer<TSessionData> syncSessionContainer)
         {
-            return new SyncToAsyncSessionContainerWraper(syncSessionContainer);
+            return new SyncToAsyncSessionContainerWraper<TSessionData>(syncSessionContainer);
         }
 
-        public static ISessionContainer GetSessionContainer(this IServiceProvider serviceProvider)
+        public static ISessionContainer<TSessionData> GetSessionContainer<TSessionData>(this IServiceProvider serviceProvider)
         {
             var sessionContainer = serviceProvider.GetServices<IMiddleware>()
-                .OfType<ISessionContainer>()
+                .OfType<ISessionContainer<TSessionData>>()
                 .FirstOrDefault();
 
             if (sessionContainer != null)
                 return sessionContainer;
 
             var asyncSessionContainer = serviceProvider.GetServices<IMiddleware>()
-                .OfType<IAsyncSessionContainer>()
+                .OfType<IAsyncSessionContainer<TSessionData>>()
                 .FirstOrDefault();
 
             return asyncSessionContainer?.ToSyncSessionContainer();
         }
 
-        public static IAsyncSessionContainer GetAsyncSessionContainer(this IServiceProvider serviceProvider)
+        public static IAsyncSessionContainer<TSessionData> GetAsyncSessionContainer<TSessionData>(this IServiceProvider serviceProvider)
         {
             var asyncSessionContainer = serviceProvider.GetServices<IMiddleware>()
-                .OfType<IAsyncSessionContainer>()
+                .OfType<IAsyncSessionContainer<TSessionData>>()
                 .FirstOrDefault();
 
             if (asyncSessionContainer != null)
                 return asyncSessionContainer;
 
             var sessionContainer = serviceProvider.GetServices<IMiddleware>()
-                .OfType<ISessionContainer>()
+                .OfType<ISessionContainer<TSessionData>>()
                 .FirstOrDefault();
 
             return sessionContainer?.ToAsyncSessionContainer(); 
         }
 
-        public static ISessionContainer GetSessionContainer(this IServer server)
+        public static ISessionContainer<TSessionData> GetSessionContainer<TSessionData>(this IServer server)
         {
-            return server.ServiceProvider.GetSessionContainer();
+            return server.ServiceProvider.GetSessionContainer<TSessionData>();
         }
 
-        public static IAsyncSessionContainer GetAsyncSessionContainer(this IServer server)
+        public static IAsyncSessionContainer<TSessionData> GetAsyncSessionContainer<TSessionData>(this IServer server)
         {
-            return server.ServiceProvider.GetAsyncSessionContainer();
+            return server.ServiceProvider.GetAsyncSessionContainer<TSessionData>();
         }
     }
 }

@@ -7,9 +7,9 @@ using Microsoft.Extensions.Options;
 
 namespace SuperSocket.Server
 {
-    class ClearIdleSessionMiddleware : MiddlewareBase
+    class ClearIdleSessionMiddleware<TSessionData> : MiddlewareBase
     {
-        private ISessionContainer _sessionContainer;
+        private ISessionContainer<TSessionData> _sessionContainer;
 
         private Timer _timer;
 
@@ -19,10 +19,10 @@ namespace SuperSocket.Server
 
         public ClearIdleSessionMiddleware(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions)
         {
-            _sessionContainer = serviceProvider.GetService<ISessionContainer>();
+            _sessionContainer = serviceProvider.GetService<ISessionContainer<TSessionData>>();
             
             if (_sessionContainer == null)
-                throw new Exception($"{nameof(ClearIdleSessionMiddleware)} needs a middleware of {nameof(ISessionContainer)}");
+                throw new Exception($"{nameof(ClearIdleSessionMiddleware<TSessionData>)} needs a middleware of {nameof(ISessionContainer<TSessionData>)}");
 
             _serverOptions = serverOptions.Value;
             _logger = LoggerManager.GetLogger("ClearIdleSessionMiddleware");

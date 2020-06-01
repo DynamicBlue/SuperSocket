@@ -16,7 +16,7 @@ using SuperSocket.Server.Runtime;
 
 namespace SuperSocket.Server
 {
-    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister
+    public class SuperSocketService<TSessionData,TReceivePackageInfo> : IHostedService, IServer, IChannelRegister
     {
         private readonly IServiceProvider _serviceProvider;
         public Dynamic.Core.Log.ILogger _logger = LoggerManager.GetLogger("CSuperSocketService");
@@ -35,8 +35,8 @@ namespace SuperSocket.Server
         private IPipelineFilterFactory<TReceivePackageInfo> _pipelineFilterFactory;
         private IChannelCreatorFactory _channelCreatorFactory;
         private List<IChannelCreator> _channelCreators;
-        private IPackageHandler<TReceivePackageInfo> _packageHandler;
-        private Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>> _errorHandler;
+        private IPackageHandler<TSessionData,TReceivePackageInfo> _packageHandler;
+        private Func<IAppSession<TSessionData>, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>> _errorHandler;
         
         public string Name { get; }
 
@@ -44,7 +44,7 @@ namespace SuperSocket.Server
 
         public int SessionCount => _sessionCount;
 
-        private ISessionFactory _sessionFactory;
+        private ISessionFactory<TSessionData> _sessionFactory;
 
         private IMiddleware[] _middlewares;
 
@@ -62,7 +62,7 @@ namespace SuperSocket.Server
 
         public object DataContext { get; set; }
 
-        private SessionHandlers _sessionHandlers;
+        private SessionHandlers<TSessionData> _sessionHandlers;
 
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, IChannelCreatorFactory channelCreatorFactory)
         {
@@ -74,9 +74,9 @@ namespace SuperSocket.Server
             _pipelineFilterFactory = GetPipelineFilterFactory();
          
             _channelCreatorFactory = channelCreatorFactory;
-            _packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>();
-            _errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>();
-            _sessionHandlers = serviceProvider.GetService<SessionHandlers>();
+            _packageHandler = serviceProvider.GetService<IPackageHandler<TSessionData,TReceivePackageInfo>>();
+            _errorHandler = serviceProvider.GetService<Func<IAppSession<TSessionData>, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>();
+            _sessionHandlers = serviceProvider.GetService<SessionHandlers<TSessionData>>();
 
             if (_errorHandler == null)
             {
@@ -84,10 +84,10 @@ namespace SuperSocket.Server
             }
             
             // initialize session factory
-            _sessionFactory = serviceProvider.GetService<ISessionFactory>();
+            _sessionFactory = serviceProvider.GetService<ISessionFactory<TSessionData>>();
 
             if (_sessionFactory == null)
-                _sessionFactory = new DefaultSessionFactory();
+                _sessionFactory = new DefaultSessionFactory<TSessionData>();
 
 
             InitializeMiddlewares();
@@ -105,7 +105,7 @@ namespace SuperSocket.Server
             }
 
             if (_packageHandler == null)
-                _packageHandler = _middlewares.OfType<IPackageHandler<TReceivePackageInfo>>().FirstOrDefault();
+                _packageHandler = _middlewares.OfType<IPackageHandler<TSessionData,TReceivePackageInfo>>().FirstOrDefault();
         }
 
         private void ShutdownMiddlewares()
@@ -185,7 +185,7 @@ namespace SuperSocket.Server
 
         private void AcceptNewChannel(IChannel channel)
         {
-            var session = _sessionFactory.Create() as AppSession;
+            var session = _sessionFactory.Create() as AppSession<TSessionData>;
             HandleSession(session, channel).DoNotAwait();
         }
 
@@ -195,12 +195,12 @@ namespace SuperSocket.Server
             AcceptNewChannel(channel);
         }
 
-        protected virtual object CreatePipelineContext(IAppSession session)
+        protected virtual object CreatePipelineContext(IAppSession<TSessionData> session)
         {
             return session;
         }
 
-        private async ValueTask<bool> InitializeSession(IAppSession session, IChannel channel)
+        private async ValueTask<bool> InitializeSession(IAppSession<TSessionData> session, IChannel channel)
         {
             session.Initialize(this, channel);
 
@@ -229,7 +229,7 @@ namespace SuperSocket.Server
         }
 
 
-        protected virtual ValueTask OnSessionConnectedAsync(IAppSession session)
+        protected virtual ValueTask OnSessionConnectedAsync(IAppSession<TSessionData> session)
         {
             var connectedHandler = _sessionHandlers?.Connected;
 
@@ -239,7 +239,7 @@ namespace SuperSocket.Server
             return new ValueTask();
         }
 
-        protected virtual ValueTask OnSessionClosedAsync(IAppSession session)
+        protected virtual ValueTask OnSessionClosedAsync(IAppSession<TSessionData> session)
         {
             var closedHandler = _sessionHandlers?.Closed;
 
@@ -249,7 +249,7 @@ namespace SuperSocket.Server
             return new ValueTask();
         }
 
-        protected virtual async ValueTask FireSessionConnectedEvent(AppSession session)
+        protected virtual async ValueTask FireSessionConnectedEvent(AppSession<TSessionData> session)
         {
             if (session is IHandshakeRequiredSession hanshakeSession)
             {
@@ -271,7 +271,7 @@ namespace SuperSocket.Server
             }
         }
 
-        protected virtual async ValueTask FireSessionClosedEvent(AppSession session)
+        protected virtual async ValueTask FireSessionClosedEvent(AppSession<TSessionData> session)
         {
             if (session is IHandshakeRequiredSession hanshakeSession)
             {
@@ -293,7 +293,7 @@ namespace SuperSocket.Server
             }
         }
 
-        private async ValueTask HandleSession(AppSession session, IChannel channel)
+        private async ValueTask HandleSession(AppSession<TSessionData> session, IChannel channel)
         {
             if (!await InitializeSession(session, channel))
                 return;
@@ -333,7 +333,7 @@ namespace SuperSocket.Server
             }
         }
 
-        protected virtual ValueTask<bool> OnSessionErrorAsync(IAppSession session, PackageHandlingException<TReceivePackageInfo> exception)
+        protected virtual ValueTask<bool> OnSessionErrorAsync(IAppSession<TSessionData> session, PackageHandlingException<TReceivePackageInfo> exception)
         {
             _logger.Error($"Session[{session.SessionID}]: session exception.¡¾{exception.ToString()}¡¿");
             return new ValueTask<bool>(true);
