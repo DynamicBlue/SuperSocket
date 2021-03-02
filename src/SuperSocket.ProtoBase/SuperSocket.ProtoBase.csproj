@@ -2,11 +2,13 @@
   <PropertyGroup>
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <Description>SuperSocket protocol decoding library.</Description>
-    <Version>1.0.0.8</Version>
+    <Version>1.0.1.0</Version>
     <PackageProjectUrl>https://github.com/dynamic/supersocket</PackageProjectUrl>
     <Authors>dynamic;dynamicblue;jiang</Authors>
     <PackageId>CDSuperSocket.ProtoBase</PackageId>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Dynamic.Core" Version="2.1.7.3" />

@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <Description>SuperSocket client library</Description>
+    <Version>1.0.1.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.Channel/SuperSocket.Channel.csproj" />

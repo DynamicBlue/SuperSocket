@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <Description>SuperSocket command pattern library which allow you to handle requests with commands.</Description>
+    <Version>1.0.1.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />

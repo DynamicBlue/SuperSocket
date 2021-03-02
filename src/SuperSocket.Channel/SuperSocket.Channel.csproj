@@ -3,13 +3,14 @@
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <Description>SuperSocket library to abstract underlying communications as channel with pipeline.
 重置管道过滤器，修改之前会缓存管道过滤器的最后一个filter</Description>
-    <Version>1.0.0.9</Version>
+    <Version>1.0.1.0</Version>
     <PackageProjectUrl>https://github.com/dynamic/supersocket</PackageProjectUrl>
     <Company>dynamic;dynamicblue;Kerry Jiang</Company>
     <Authors>dynamic;dynamicblue;Kerry Jiang</Authors>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageId>CDSuperSocket.Channel</PackageId>
     <Product>CDSuperSocket.Channel</Product>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
