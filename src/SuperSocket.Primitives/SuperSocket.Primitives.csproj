@@ -5,7 +5,7 @@
     <AssemblyName>SuperSocket.Primitives</AssemblyName>
     <PackageId>CDSuperSocket.Primitives</PackageId>
     <Description>SuperSocket primitive interfaces and classes.</Description>
-    <Version>1.0.0.7</Version>
+    <Version>1.0.0.8</Version>
     <Authors>CDSuperSocket.Primitives</Authors>
     <Product>CDSuperSocket.Primitives</Product>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>

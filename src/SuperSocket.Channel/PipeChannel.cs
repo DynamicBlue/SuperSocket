@@ -15,6 +15,12 @@ namespace SuperSocket.Channel
     public abstract partial class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel, IPipeChannel
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
+        /// <summary>
+        /// <author>huajunsoft</author>
+        /// <history>2021-03-02</history>
+        /// <des>记录最开始用到的管道,方便管道溯源</des>
+        /// </summary>
+        private IPipelineFilter<TPackageInfo> _oriPipelineFilter;
 
         private CancellationTokenSource _cts = new CancellationTokenSource();
 
@@ -53,6 +59,7 @@ namespace SuperSocket.Channel
 
         protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
         {
+            _oriPipelineFilter = pipelineFilter;
             _pipelineFilter = pipelineFilter;
             _packagePipe = new DefaultObjectPipe<TPackageInfo>();
             Options = options;
@@ -377,11 +384,13 @@ namespace SuperSocket.Channel
 
         private bool ReaderBuffer(ref ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
         {
+            //=============2021-03-02 重置管道过滤器==============
+            _pipelineFilter = _oriPipelineFilter;
             consumed = buffer.Start;
             examined = buffer.End;
 
             var bytesConsumedTotal = 0L;
-
+           
             var maxPackageLength = Options.MaxPackageLength;
 
             var seqReader = new SequenceReader<byte>(buffer);
@@ -398,6 +407,12 @@ namespace SuperSocket.Channel
                 {
                     nextFilter.Context = currentPipelineFilter.Context; // pass through the context
                     _pipelineFilter = nextFilter;
+                    ///=============hjs 2021-03-02 add 多个执行器循环执行，执行到最后一个过滤器再给下一端发
+                    if (packageInfo == null)
+                    {
+                        continue;
+                    }
+                    
                 }
 
                 var bytesConsumed = seqReader.Consumed;
